@@ -11,6 +11,7 @@ logger = logging.getLogger('client')
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
 STOP = Event()
 
+socket.SO_REUSEPORT = socket.SO_REUSEADDR
 
 def accept(port):
     logger.info("accept %s", port)
@@ -27,6 +28,8 @@ def accept(port):
             continue
         else:
             logger.info("Accept %s connected!", port)
+
+            send_msg(conn, b"Hi")
             # STOP.set()
 
 
@@ -46,10 +49,16 @@ def connect(local_addr, addr):
         #     break
         else:
             logger.info("connected from %s to %s success!", local_addr, addr)
+
+            data = recv_msg(s)
+            print(data)
             # STOP.set()
 
 
-def main(host='54.187.46.146', port=5005):
+def main(host='192.168.2.10', port=5000):
+    '''host = '192.168.2.10'
+    port = 5000
+
     sa = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sa.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     sa.connect((host, port))
@@ -68,7 +77,11 @@ def main(host='54.187.46.146', port=5005):
     logger.info(
         "client public is %s and private is %s, peer public is %s private is %s",
         pub_addr, priv_addr, client_pub_addr, client_priv_addr,
-    )
+    )'''
+
+    priv_addr = ('192.168.2.11', 50002)
+    client_priv_addr = ('192.168.2.10', 50002)
+    client_pub_addr = ('192.168.2.10', 50002)
 
     threads = {
         '0_accept': Thread(target=accept, args=(priv_addr[1],)),
